@@ -76,7 +76,7 @@ while True:
             print("Please make sure the date is in the correct format.")
             continue
 
-        filtered_date = (df['Date'].str.contains(booking_date))
+        filtered_date = (df['Date'].astype(str).str.contains(booking_date))
         filtered_date_df = df[filtered_date]
 
         if future_date.date() < current_date.date():
@@ -95,7 +95,7 @@ while True:
         option = ""
         if selected_time in range(1, 21):
             option = time[selected_time]
-            filtered = (df['Time'].str.contains(option)) & (df['Date'].str.contains(booking_date))
+            filtered = (df['Time'].astype(str).str.contains(option)) & (df['Date'].astype(str).str.contains(booking_date))
             filtered_df = df[filtered]
 
             if len(filtered_df) == 0:
@@ -146,10 +146,11 @@ while True:
     while True:
         confirm = input("Is your booking information correct? (y/n)")
         if confirm == "y" or confirm == "Y" or confirm == "yes" or confirm == "Yes":
-            df = df.append({"First Name" : F_name, "Last Name" : L_name, "Phone Number" : P_number, "Cleaning Option" : c_option, "Price" : c_price, "Date" : booking_date, "Time" : option}, ignore_index=True)
+            df = df.append({"First Name" : F_name, "Last Name" : L_name, "Phone Number" : str(P_number), "Cleaning Option" : c_option, "Price" : c_price, "Date" : booking_date, "Time" : option}, ignore_index=True)
             sleep(1)
             os.system('cls')
             df.to_csv(booking_info)
             break
         else:
+            os.system('cls')
             break
