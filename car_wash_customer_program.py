@@ -1,5 +1,4 @@
 import os
-from select import select
 from time import time, sleep
 from numpy import number
 import warnings
@@ -37,9 +36,9 @@ cleaning_options = [("1)","Interior Cleaning","$35"),
 folder = os.path.dirname(os.path.abspath(__file__))
 booking_info = os.path.join(folder, 'booking_info.csv')
 columns= ["First Name", "Last Name", "Phone Number", "Cleaning Option", "Price", "Date", "Time"]
-
-df = pd.read_csv(booking_info, index_col=0)
 df = pd.DataFrame(columns=columns)
+df = pd.read_csv(booking_info, index_col=0)
+
 
 def verify(number):
     return str(number).startswith("04")
@@ -64,6 +63,8 @@ while True:
         else:
             print("Please enter a valid phone number. ")
 
+    print()
+
     """Collects booking information"""
     print("==Booking Information==")
     while True:
@@ -74,23 +75,38 @@ while True:
         except ValueError:
             print("Please make sure the date is in the correct format.")
             continue
+
+        filtered_date = (df['Date'].str.contains(booking_date))
+        filtered_date_df = df[filtered_date]
+
         if future_date.date() < current_date.date():
             print("Please enter a date into the future.")
+        elif len(filtered_date_df) == 19:
+            print("Sorry that date is fully booked.")
         else:
+            print()
             break
 
     for Num, Times in time.items():
         print(str(Num) + ')' ,Times)
-
+    
     while True:
-        selected_time = int(input("Select a cleaning time from the list above: "))
+        selected_time = int(input("Enter option number from the cleaning times above: "))
         option = ""
         if selected_time in range(1, 21):
             option = time[selected_time]
-            break
+            filtered = (df['Time'].str.contains(option)) & (df['Date'].str.contains(booking_date))
+            filtered_df = df[filtered]
+
+            if len(filtered_df) == 0:
+                break
+            else:
+                print("sorry that time slot is not available.")
+                continue
         else:
             print("The selected number is not on the list. ")
             continue
+    print()
 
     for sel, opt, price in cleaning_options:
         print(sel, opt, price)
@@ -98,7 +114,7 @@ while True:
     while True:
         c_option = ""
         c_price = ""
-        selected_cleaning = int(input("Select a cleaning option from above: "))
+        selected_cleaning = int(input("Enter option number from the cleaning options above: "))
         if selected_cleaning < 1 or selected_cleaning > 4:
             print("The selected number is not on the list. ")
         elif  selected_cleaning == 1:
@@ -117,6 +133,9 @@ while True:
             c_option = "Detailing"
             c_price = "$120"
             break
+
+    print()
+
     """booking confirmation"""
     print("==Booking confirmation")
     print(F_name, L_name)
@@ -128,11 +147,9 @@ while True:
         confirm = input("Is your booking information correct? (y/n)")
         if confirm == "y" or confirm == "Y" or confirm == "yes" or confirm == "Yes":
             df = df.append({"First Name" : F_name, "Last Name" : L_name, "Phone Number" : P_number, "Cleaning Option" : c_option, "Price" : c_price, "Date" : booking_date, "Time" : option}, ignore_index=True)
-            sleep(4)
+            sleep(1)
             os.system('cls')
             df.to_csv(booking_info)
-            #print(df)
             break
         else:
             break
-        
