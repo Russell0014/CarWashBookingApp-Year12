@@ -1,32 +1,11 @@
 import os
 from select import select
-from time import time
+from time import time, sleep
 from numpy import number
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 from datetime import date, datetime
 import pandas as pd
-
-times = [("1."," 08:00 AM"),
-         ("2."," 08:30 AM"),
-         ("3."," 09:00 AM"),
-         ("4."," 09:30 AM"),
-         ("5."," 10:00 AM"),
-         ("6."," 10:30 AM"),
-         ("7."," 11:00 AM"),
-         ("8."," 11:30 AM"),
-         ("9."," 12:00 PM"),
-         ("10.","12:30 PM"),
-         ("11.","01:00 PM"),
-         ("12.","01:30 PM"),
-         ("13.","02:00 PM"),
-         ("14.","02:30 PM"),
-         ("15.","03:00 PM"),
-         ("16.","03:30 PM"),
-         ("17.","04:00 PM"),
-         ("18.","04:30 PM"),
-         ("19.","05:00 PM"),
-         ("20.","05:30 PM"),]
 
 time = {
     1: "8:00 AM",
@@ -48,28 +27,26 @@ time = {
     17: "4:00 PM",
     18: "4:30 PM",
     19: "5:00 PM",
-    20: "5:30 PM",
-}
+    20: "5:30 PM",}
 
-
-cleaning_options = [("1.","Interior Cleaning","$35"),
-                    ("2.","Exterior Cleaning","$26"),
-                    ("3.","Interior and Exterior","$45"),
-                    ("4.","Detailing","$120")]
+cleaning_options = [("1)","Interior Cleaning","$35"),
+                    ("2)","Exterior Cleaning","$26"),
+                    ("3)","Interior and Exterior","$45"),
+                    ("4)","Detailing","$120")]
 
 folder = os.path.dirname(os.path.abspath(__file__))
 booking_info = os.path.join(folder, 'booking_info.csv')
-df = pd.read_csv(booking_info)
-column_Names = ["First Name", "Last Name", "Phone Number", "Cleaning Option", "Price", "Date", "Time"]
-df = pd.DataFrame(columns=column_Names)
+columns= ["First Name", "Last Name", "Phone Number", "Cleaning Option", "Price", "Date", "Time"]
+
+df = pd.read_csv(booking_info, index_col=0)
+df = pd.DataFrame(columns=columns)
 
 def verify(number):
     return str(number).startswith("04")
 
 while True:
 
-    """Collets contact information from the user"""
-    
+    """Collects contact information from the user"""
     print("==Contact Information==")
 
     while True:
@@ -88,6 +65,7 @@ while True:
             print("Please enter a valid phone number. ")
 
     """Collects booking information"""
+    print("==Booking Information==")
     while True:
         current_date = datetime.now()
         booking_date = input("Enter your booking date in DD/MM/YY: ")
@@ -101,8 +79,8 @@ while True:
         else:
             break
 
-    for Num, Time in times:
-        print(Num, Time)
+    for Num, Times in time.items():
+        print(str(Num) + ')' ,Times)
 
     while True:
         selected_time = int(input("Select a cleaning time from the list above: "))
@@ -138,5 +116,23 @@ while True:
         elif  selected_cleaning == 4:
             c_option = "Detailing"
             c_price = "$120"
-            break   
-            
+            break
+    """booking confirmation"""
+    print("==Booking confirmation")
+    print(F_name, L_name)
+    print("On", booking_date)
+    print("At", option)
+    print(c_option, c_price)
+    
+    while True:
+        confirm = input("Is your booking information correct? (y/n)")
+        if confirm == "y" or confirm == "Y" or confirm == "yes" or confirm == "Yes":
+            df = df.append({"First Name" : F_name, "Last Name" : L_name, "Phone Number" : P_number, "Cleaning Option" : c_option, "Price" : c_price, "Date" : booking_date, "Time" : option}, ignore_index=True)
+            sleep(4)
+            os.system('cls')
+            df.to_csv(booking_info)
+            #print(df)
+            break
+        else:
+            break
+        
